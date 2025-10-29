@@ -5,10 +5,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/luthfiarsyad/mms/config"
+	"github.com/luthfiarsyad/mms/internal/infrastructure/logger"
+	"github.com/luthfiarsyad/mms/internal/infrastructure/http/middleware"
 	"github.com/luthfiarsyad/mms/internal/interface/http"
 )
 
 func main() {
+	// --- Load config ---
 	if err := config.Load(""); err != nil {
 		log.Fatalf("failed to load config: %v", err)
 	}
@@ -17,14 +20,30 @@ func main() {
 		log.Fatalf("config is nil after load")
 	}
 
-	// set gin mode from config
+	// --- Initialize Zerolog ---
+	logger.Init(cfg.Log.Level)
+	log := logger.Get()
+	log.Info().Msg("Logger initialized")
+
+	// --- Setup Gin ---
 	gin.SetMode(cfg.Server.Mode)
 	r := gin.New()
 
+	// Apply middlewares
+	r.Use(gin.Recovery())
+	r.Use(middleware.RequestLogger())
+
+	// --- Setup routes ---
 	http.SetupRoutes(r)
 
-	// run using address from config
-	if err := r.Run(cfg.Server.Address); err != nil {
-		log.Fatalf("server failed: %v", err)
+	// --- Run server ---
+	addr := cfg.Server.Address
+	if addr == "" {
+		addr = ":8080"
+	}
+	log.Info().Msgf("Server starting on %s", addr)
+
+	if err := r.Run(addr); err != nil {
+		log.Fatal().Err(err).Msg("Server failed")
 	}
 }
