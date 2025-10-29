@@ -1,0 +1,17 @@
+server:
+  mode: "debug" 
+  address: ":8080"
+
+database:
+  host: "127.0.0.1"
+  port: 3306
+  user: "root"
+  password: ""
+  name: "mms_db"
+
+paseto:
+  symmetric_key: "kalo_bukan-Untuk0productionk3n4p4gakp4ke_ini9aj?"
+  expire_minutes: 60
+
+log:
+  level: "info" # e.g. "debug", "info", "warn", "error"
