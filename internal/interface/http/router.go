@@ -1,6 +1,9 @@
 package http
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	"github.com/luthfiarsyad/mms/internal/interface/http/handler"
+)
 
 func SetupRoutes(r *gin.Engine) {
 	r.Use(gin.Recovery())
@@ -9,10 +12,18 @@ func SetupRoutes(r *gin.Engine) {
 		c.JSON(200, gin.H{"status": "ok"})
 	})
 
-	// API v1
 	api := r.Group("/api")
 	v1 := api.Group("/v1")
 
+	// --- AUTH ROUTES ---
+	authHandler := handler.NewAuthHandler()
+	auth := v1.Group("/auth")
+	{
+		auth.POST("/register", authHandler.Register)
+		auth.POST("/login", authHandler.Login)
+	}
+
+	// --- USERS ROUTES ---
 	users := v1.Group("/users")
 	{
 		users.POST("", createUser)
@@ -22,6 +33,7 @@ func SetupRoutes(r *gin.Engine) {
 		users.DELETE("/:id", deleteUser)
 	}
 
+	// --- TRANSACTIONS ROUTES ---
 	tx := v1.Group("/transactions")
 	{
 		tx.POST("", createTransaction)
@@ -29,6 +41,7 @@ func SetupRoutes(r *gin.Engine) {
 		tx.GET("/:id", getTransaction)
 	}
 }
+
 func createUser(c *gin.Context)        { c.JSON(501, gin.H{"error": "not implemented"}) }
 func listUsers(c *gin.Context)         { c.JSON(501, gin.H{"error": "not implemented"}) }
 func getUser(c *gin.Context)           { c.JSON(501, gin.H{"error": "not implemented"}) }
