@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"time"
 )
 
 var (
@@ -17,6 +18,10 @@ type Service struct {
 
 func NewService(r Repository) *Service { return &Service{repo: r} }
 func (s *Service) Register(ctx context.Context, u *User) error {
+	// Set created_at if not already set
+	if u.CreatedAt.IsZero() {
+		u.CreatedAt = time.Now()
+	}
 	// repository should check unique email; we keep simple here
 	return s.repo.Create(ctx, u)
 }
