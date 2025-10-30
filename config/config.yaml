@@ -10,7 +10,7 @@ database:
   name: "mms_db"
 
 paseto:
-  symmetric_key: "kalo_bukan-Untuk0productionk3n4p4gakp4ke_ini9aj?"
+  symmetric_key: "JIusUnwiN236xiEVXMtRaJTNLyz6e0BD4U4pfX0CQNQ="
   expire_minutes: 60
 
 log:

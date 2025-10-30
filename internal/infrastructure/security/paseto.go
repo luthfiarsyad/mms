@@ -1,7 +1,9 @@
 package security
 
 import (
+	"encoding/base64"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/luthfiarsyad/mms/config"
@@ -19,7 +21,19 @@ func NewPasetoService() *PasetoService {
 	if cfg == nil {
 		panic("config is not loaded")
 	}
-	return &PasetoService{paseto: paseto.NewV2(), key: []byte(cfg.Paseto.SymmetricKey)}
+	
+	// Decode the base64 key
+	key, err := base64.StdEncoding.DecodeString(cfg.Paseto.SymmetricKey)
+	if err != nil {
+		panic(fmt.Sprintf("failed to decode PASETO key: %v", err))
+	}
+	
+	// Verify key length (PASETO V2 requires 32 bytes)
+	if len(key) != 32 {
+		panic(fmt.Sprintf("invalid PASETO key length: got %d bytes, expected 32 bytes", len(key)))
+	}
+	
+	return &PasetoService{paseto: paseto.NewV2(), key: key}
 }
 
 type tokenPayload struct {

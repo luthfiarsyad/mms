@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
+	"path/filepath"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -50,6 +52,11 @@ func Connect() (*sql.DB, error) {
 
 	log.Println("[DB] Connected to MySQL successfully")
 
+	// Run migrations
+	if err := runMigrations(db); err != nil {
+		return nil, fmt.Errorf("failed to run migrations: %w", err)
+	}
+
 	DB = db
 	return db, nil
 }
@@ -64,5 +71,25 @@ func Close() error {
 	if DB != nil {
 		return DB.Close()
 	}
+	return nil
+}
+
+// runMigrations executes the database schema migration
+func runMigrations(db *sql.DB) error {
+	log.Println("[DB] Running migrations...")
+
+	// Read schema file
+	schemaPath := filepath.Join("internal", "infrastructure", "persistence", "migration", "schema.sql")
+	schema, err := os.ReadFile(schemaPath)
+	if err != nil {
+		return fmt.Errorf("failed to read schema file: %w", err)
+	}
+
+	// Execute schema
+	if _, err := db.Exec(string(schema)); err != nil {
+		return fmt.Errorf("failed to execute schema: %w", err)
+	}
+
+	log.Println("[DB] Migrations completed successfully")
 	return nil
 }

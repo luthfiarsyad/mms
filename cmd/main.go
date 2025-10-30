@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/luthfiarsyad/mms/config"
 	"github.com/luthfiarsyad/mms/internal/infrastructure/logger"
+	"github.com/luthfiarsyad/mms/internal/infrastructure/persistence/mysql"
 	"github.com/luthfiarsyad/mms/internal/infrastructure/http/middleware"
 	"github.com/luthfiarsyad/mms/internal/interface/http"
 )
@@ -24,6 +25,12 @@ func main() {
 	logger.Init(cfg.Log.Level)
 	log := logger.Get()
 	log.Info().Msg("Logger initialized")
+
+	// --- Initialize Database ---
+	if _, err := mysql.Connect(); err != nil {
+		log.Fatal().Err(err).Msg("Failed to connect to database")
+	}
+	log.Info().Msg("Database connected")
 
 	// --- Setup Gin ---
 	gin.SetMode(cfg.Server.Mode)

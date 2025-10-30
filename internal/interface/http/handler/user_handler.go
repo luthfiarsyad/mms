@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/luthfiarsyad/mms/internal/infrastructure/logger"
 	"github.com/luthfiarsyad/mms/internal/infrastructure/security"
 	"github.com/luthfiarsyad/mms/internal/interface/http/request"
 	"github.com/luthfiarsyad/mms/internal/usecase"
@@ -35,7 +36,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	hashed, err := bcrypt.GenerateFromPassword([]byte(req.Password),
 		bcrypt.DefaultCost)
 	if err != nil {
-
+		logger.L.Error().Msg(err.Error())
 		return
 	}
 	u := &domain.User{
